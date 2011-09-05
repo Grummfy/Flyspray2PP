@@ -1,0 +1,22 @@
+flyspray 2 PP
+=============
+conversion steps
+----------------
+  - configuration
+  - users
+  - groups
+  - projects
+  - task
+  - comment
+  - attachements
+  - dependencies
+  - notification
+
+Notion conversion
+-----------------
+  * task in flyspray are bug ticket in PP
+  * the notion of group in FS is for the right and to group users and also to create profil of users
+  
+http://2share.com/pp086/index.php?c=wiki&a=view&active_project=56&id=8
+
+# EOF
