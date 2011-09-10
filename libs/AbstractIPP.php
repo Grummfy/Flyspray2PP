@@ -173,7 +173,7 @@ abstract class AbstractIPP implements IPP
 
 	public function toArray()
 	{
-		$this->fillValues();
+		// $this->fillValues();
 		return $this->_vars;
 	}
 }

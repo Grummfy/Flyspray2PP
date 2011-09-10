@@ -21,7 +21,9 @@ $config = array(
 		// prefix table for projectpier db
 		'db_prefix'	=> 'PP086_',
 		// default campany to set
-		'default_compagny_id'=> 1
+		'default_compagny_id'=> 1,
+		// default user to set for project creator by example
+		'default_user_id'=> 1
 	)
 );
 
