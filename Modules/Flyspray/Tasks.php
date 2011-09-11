@@ -70,15 +70,15 @@ class Modules_Flyspray_Tasks extends AbstractModules
 			$pp_comment->rel_object_id = $this->getNewId($row['task_id']);
 			$pp_comment->rel_object_manager = 'ProjectTickets';
 			$pp_comment->text = $row['comment_text'];
-			$pp_comment->is_private = $row[''];
-			$pp_comment->is_anonymous = $row[''];
-			$pp_comment->author_name = $row[''];
-			$pp_comment->author_email = $row[''];
-			$pp_comment->author_homepage = $row[''];
 			$pp_comment->created_on = time2SqlDateTime($row['date_added']);
 			$pp_comment->created_by_id = $this->_users->getNewId($row['user_id']);
-			$pp_comment->updated_on = $row[''];
-			$pp_comment->updated_by_id = $row[''];
+			$pp_comment->updated_on = time2SqlDateTime($row['last_edited_time']);
+			//$pp_comment->is_private = $row[''];
+			//$pp_comment->is_anonymous = $row[''];
+			//$pp_comment->author_name = $row[''];
+			//$pp_comment->author_email = $row[''];
+			//$pp_comment->author_homepage = $row[''];
+			//$pp_comment->updated_by_id = $row[''];
 
 			$pp_comments[ $row['comment_id'] ] = $pp_comments;
 		}
