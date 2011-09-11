@@ -39,6 +39,12 @@ class PP_Project_Tickets extends AbstractIPP
 	{
 		return $this->getDB()->getDestinationPrefix() . 'project_tickets';
 	}
+	
+	public function setCommented(array $ticketsId)
+	{
+		$query = 'UPDATE ' . $this->getDBTableName() . ' SET updated = \'comment\' WHERE id IN (' . implode(',', $ticketsId) . ')';
+		$this->getDB()->getDestination()->query($query);
+	}
 
 	public function getDB()
 	{

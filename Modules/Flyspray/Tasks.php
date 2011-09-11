@@ -60,6 +60,8 @@ class Modules_Flyspray_Tasks extends AbstractModules
 		// get data from database
 		$query = 'SELECT * FROM ' . $this->getDB()->getSourcePrefix() . 'comments';
 		$stmt = $this->getDB()->getSource()->query($query);
+		
+		$tasks_to_update = array();
 
 		$pp_comments = array();
 		// comment_text 	last_edited_time
@@ -73,22 +75,46 @@ class Modules_Flyspray_Tasks extends AbstractModules
 			$pp_comment->created_on = time2SqlDateTime($row['date_added']);
 			$pp_comment->created_by_id = $this->_users->getNewId($row['user_id']);
 			$pp_comment->updated_on = time2SqlDateTime($row['last_edited_time']);
+			$pp_comment->updated_by_id = $this->_users->getNewId($row['user_id']);
 			//$pp_comment->is_private = $row[''];
 			//$pp_comment->is_anonymous = $row[''];
 			//$pp_comment->author_name = $row[''];
 			//$pp_comment->author_email = $row[''];
 			//$pp_comment->author_homepage = $row[''];
-			//$pp_comment->updated_by_id = $row[''];
+			
+			$tasks_to_update[] = $this->getNewId($row['task_id']);
 
-			$pp_comments[ $row['comment_id'] ] = $pp_comments;
+			$pp_comments[ $row['comment_id'] ] = $pp_comment;
 		}
 		$stmt->closeCursor();
+		
+		foreach ($this->_closureComments as $task_id => $values)
+		{
+			if ($values[0] == 1)
+			{
+				$pp_comment = new PP_Comments($this->getDB());
+				$pp_comment->rel_object_id = $this->getNewId($task_id);
+				$pp_comment->rel_object_manager = 'ProjectTickets';
+				$pp_comment->text = $values[2];
+				$pp_comment->created_on = time2SqlDateTime(time());
+				$pp_comment->created_by_id = $values[1];
+				$pp_comment->updated_on = time2SqlDateTime(time());
+				$pp_comment->updated_by_id = $values[1];
+				
+				$pp_comments[] = $pp_comment;
+				
+				// $tasks_to_update[] is useless here
+			}
+		}
 
 		// insert in db
 		$pp_comments[ array_rand($pp_comments) ]->writes2DB($pp_comments);
 		
 		// clean memory
 		unset($pp_comments);
+		
+		$pp_tickets = new PP_Project_Tickets($this->getDB());
+		$pp_tickets->setCommented($tasks_to_update);
 	}
 
 	private function _convertTasks()
@@ -108,13 +134,13 @@ class Modules_Flyspray_Tasks extends AbstractModules
 			$pp_ticket->setCategory_id($this->_categories->getNewId($row['task_type']));
 			$pp_ticket->setCreated_on(time2SqlDateTime($row['date_opened']));
 			$pp_ticket->setCreated_by_id($this->_users->getNewId($row['opened_by']));
+			$this->_closureComments[ $row['task_id'] ] = array($row['is_closed'], $this->_users->getNewId($row['opened_by']), $row['closure_comment']);
 			if ($row['is_closed'] == '1')
 			{
 				$pp_ticket->setClosed_on(time2SqlDateTime($row['date_closed']));
 				$pp_ticket->setClosed_by_id($this->_users->getNewId($row['closed_by']));
 				$pp_ticket->setUpdated('closed');
 				$pp_ticket->setState('closed');
-				$this->_closureComments[ $row['task_id'] ] = $row['closure_comment'];
 			}
 			else
 			{
@@ -122,8 +148,9 @@ class Modules_Flyspray_Tasks extends AbstractModules
 				$pp_ticket->setClosed_by_id(null);
 				$pp_ticket->setUpdated('open');
 				$pp_ticket->setState('opened');
-				$this->_closureComments[ $row['task_id'] ] = $row['closure_comment'];
 			}
+			$pp_ticket->updated_on = time2SqlDateTime($row['date_opened']);
+			$pp_ticket->updated_by_id = $this->_users->getNewId($row['opened_by']);
 
 			if ($row['mark_private'] == '1')
 			{

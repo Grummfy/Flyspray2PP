@@ -76,26 +76,25 @@ class Modules_Flyspray_Projects extends AbstractModules
 	private function _convertUsersInProject()
 	{
 		// get data from database
-		$query = 'SELECT * FROM ' . $this->getDB()->getSourcePrefix() . 'projects';
+		$query = 'SELECT ug.user_id, g.project_id FROM ' . $this->getDB()->getSourcePrefix() . 'users_in_groups ug, flyspray_groups g WHERE ug.group_id = g.group_id AND (is_admin = 1 OR manage_project = 1)';
 		$stmt = $this->getDB()->getSource()->query($query);
 
 		$pp_uips = array();
+		$config = $this->getConfig();
+		$config = $config['projectpier'];
 
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			$pp_project = new PP_Project_Users($this->getDB());
-			$pp_project->setOldId($row['project_id']);
+			$pp_uip = new PP_Project_Users($this->getDB());
 			
 			// set values for each fields
-			$pp_project->setName($row['project_title']);
-			// $pp_project->setPriority();
-			$pp_project->setDescription($row['intro_message']);
-			$pp_project->setCreated_on(time2SqlDateTime($row['last_updated']));
-			$pp_project->setCreated_by_id($config['default_user_id']);
-			$pp_project->setUpdated_on(time2SqlDateTime($row['last_updated']));
-			$pp_project->setUpdated_by_id($config['default_user_id']);
-
-			$pp_uips[ $row['project_id'] ] = $pp_project;
+			$pp_uip->project_id = $row['project_id'];
+			$pp_uip->user_id = $this->_users->getNewId($row['user_id']);
+			$pp_uip->role_id = 0;
+			$pp_uip->created_on = time2SqlDateTime($row['project_id']);
+			$pp_uip->created_by_id = $config['default_user_id'];
+			
+			$pp_uips[] = $pp_uip;
 		}
 		$stmt->closeCursor();
 				

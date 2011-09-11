@@ -12,7 +12,7 @@ class PP_Project_Users extends AbstractIPP
 		'user_id'		=> self::TYPE_INT,
 		'role_id'		=> self::TYPE_INT,
 		'created_on'	=> self::TYPE_STRING,
-		'created_by_id'	=> self::TYPE_INT 
+		'created_by_id'	=> self::TYPE_INT
 	);
 
 	/**

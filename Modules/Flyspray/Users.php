@@ -11,15 +11,6 @@ class Modules_Flyspray_Users extends AbstractModules
 		$this->setDB($DB);
 	}
 
-	/**
-	 * generate a password for user
-	 */
-	public function generatePassword()
-	{
-		// see pp086/application/UserController.class.php:86
-		return substr(sha1(uniqid(rand(), true)), rand(0, 25), 13);
-	}
-
 	public function convert()
 	{
 		// get data from database
@@ -51,6 +42,8 @@ class Modules_Flyspray_Users extends AbstractModules
 			//$pp_user->setLast_activity();
 			//$pp_user->setIs_admin();
 			//$pp_user->setAuto_assign();
+			$config = $this->getConfig();
+			$pp_user->company_id = $config['projectpier']['default_compagny_id'];
 
 			$pp_users[ $row['user_id'] ] = $pp_user;
 		}

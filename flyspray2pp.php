@@ -24,6 +24,7 @@ $modUsers->convert();
 
 // projects	
 $modProjects = loadModule('Projects', $convert_path, $DB, $config);
+$modProjects->setUsersConverter($modUsers);
 $modProjects->convert();
 
 $modCategories = loadModule('Categories', $convert_path, $DB, $config);
