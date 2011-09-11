@@ -17,6 +17,16 @@ $convert_source = 'flyspray';
 $convert_path = ucfirst($convert_source);
 
 $DB = loadDB($config, $convert_source);
-convert2PP($convert_source, $convert_path, $DB, $config);
+
+// first import users
+$modUsers = loadModule('Users', $convert_path, $DB, $config);
+$modUsers->convert();
+
+// projects	
+$modProjectCategories = loadModule('Project_Categories', $convert_path, $DB, $config);
+$modProjects = loadModule('Projects', $convert_path, $DB, $config);
+
+// TODO
+// tickets
 
 # EOF

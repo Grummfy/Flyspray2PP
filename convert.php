@@ -20,6 +20,7 @@ require _X2PP_ROOT . '/config.php';
 // include required things
 require _X2PP_ROOT . '/libs/DB.php';
 require _X2PP_ROOT . '/libs/IModules.php';
+require _X2PP_ROOT . '/libs/AbstractModules.php';
 require _X2PP_ROOT . '/libs/functions.php';
 
 function loadModule($module_name, $convert_path, $DB, $config)
@@ -29,19 +30,6 @@ function loadModule($module_name, $convert_path, $DB, $config)
 	$module = 'Modules_' . $convert_path . '_' . $module_name;
 
 	return new $module($DB, $config);
-}
-
-function convert2PP($convert_source, $convert_path, $DB, $config)
-{
-	// first import users
-	$modUsers = loadModule('Users', $convert_path, $DB, $config);
-	$modUsers->convert();
-
-	// projects	
-	$modProjects = loadModule('Projects', $convert_path, $DB, $config);
-
-	// TODO
-	// tickets
 }
 
 function loadDB($config, $convert_source)

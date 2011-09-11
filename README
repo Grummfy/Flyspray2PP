@@ -2,16 +2,14 @@ flyspray 2 PP
 =============
 conversion steps
 ----------------
-  - configuration
   - users
-  - groups
   - projects
-  - task
+  - tasks -> tickets
   - comment
   - attachements
   - dependencies
   - notification
-  - permissions
+  - groups & permissions
 
 Notion conversion
 -----------------
