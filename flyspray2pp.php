@@ -23,10 +23,18 @@ $modUsers = loadModule('Users', $convert_path, $DB, $config);
 $modUsers->convert();
 
 // projects	
-$modProjectCategories = loadModule('Project_Categories', $convert_path, $DB, $config);
 $modProjects = loadModule('Projects', $convert_path, $DB, $config);
+$modProjects->convert();
 
-// TODO
+$modCategories = loadModule('Categories', $convert_path, $DB, $config);
+$modCategories->setProjectsConverter($modProjects);
+$modCategories->convert();
+
 // tickets
+$modTasks = loadModule('Tasks', $convert_path, $DB, $config);
+$modTasks->setProjectsConverter($modProjects);
+$modTasks->setUsersConverter($modUsers);
+$modTasks->setCategoriesConverter($modCategories);
+$modTasks->convert();
 
 # EOF
