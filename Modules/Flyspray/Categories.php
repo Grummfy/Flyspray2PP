@@ -34,7 +34,7 @@ class Modules_Flyspray_Categories extends AbstractModules
 		$pp_types = array();
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			$pp_type = new PP_Project_Tickets($this->getDB());
+			$pp_type = new PP_Project_Categories($this->getDB());
 			$pp_type->setOldId($row['tasktype_id']);
 			if ($row['project_id'] == '0')
 			{
@@ -51,10 +51,10 @@ class Modules_Flyspray_Categories extends AbstractModules
 		$stmt->closeCursor();
 				
 		// insert in db
-		$this->setNewIds($pp_tickets[ array_rand($pp_tickets) ]->writes2DB($pp_tickets));
+		$this->setNewIds($pp_types[ array_rand($pp_types) ]->writes2DB($pp_types));
 		
 		// clean memory
-		unset($pp_tickets);
+		unset($pp_types);
 	}
 }
 

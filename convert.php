@@ -1,14 +1,35 @@
 <?php
 
+//
+//
 // comment this line to remove warning
-die('Comment this line (add a // in front of the line, in file ' . __FILE__ . ' on line ' . __LINE__ . '), if you have backuped all your flyspray AND projectpier data!');
-
+//die('Comment this line (add a // in front of the line, in file ' . __FILE__ . ' on line ' . __LINE__ . '), if you have backuped all your flyspray AND projectpier data!');
+//
+//
+//
 
 
 //
 //
 //
 define('_X2PP_ROOT', dirname(__FILE__));
+
+// Errors and exceptions
+function exception_error_handler($errno, $errstr, $errfile, $errline)
+{
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+}
+
+function exception_handler($exception)
+{
+	echo '<pre>';
+	var_dump($exception);
+	echo '</pre>';
+	die('exception -- end');
+}
+
+set_error_handler('exception_error_handler');
+set_exception_handler('exception_handler');
 
 // include config
 if(!file_exists(_X2PP_ROOT . '/config.php'))
@@ -21,6 +42,8 @@ require _X2PP_ROOT . '/config.php';
 require _X2PP_ROOT . '/libs/DB.php';
 require _X2PP_ROOT . '/libs/IModules.php';
 require _X2PP_ROOT . '/libs/AbstractModules.php';
+require _X2PP_ROOT . '/libs/IPP.php';
+require _X2PP_ROOT . '/libs/AbstractIPP.php';
 require _X2PP_ROOT . '/libs/functions.php';
 
 function loadModule($module_name, $convert_path, $DB, $config)

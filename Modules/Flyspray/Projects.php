@@ -28,7 +28,7 @@ class Modules_Flyspray_Projects extends AbstractModules
 
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			$pp_project = new PP_Users($this->getDB());
+			$pp_project = new PP_Projects($this->getDB());
 			$pp_project->setOldId($row['project_id']);
 			
 			// set values for each fields

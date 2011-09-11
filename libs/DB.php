@@ -80,8 +80,15 @@ class DB
 			$values = array($values);
 		}
 
-		$keys = array_keys($values[ 0 ]);
-		$query = 'INSERT INTO ' . $table . ' (' . implode(',', $keys) . ') VALUES (' . implode(',', array_fill(0, count($keys), '?')) . ')';
+		$oneValues = $values[ array_rand($values) ];
+		$query_keys = array();
+		$query_values = array();
+		foreach ($oneValues as $key => $value)
+		{
+			$query_keys[] = $key;
+			$query_values[] = ':' . $key;
+		}
+		$query = 'INSERT INTO ' . $table . ' (' . implode(',', $query_keys) . ') VALUES (' . implode(',', $query_values) . ')';
 
 		$this->_out->beginTransaction();
 		$stmt = $this->_out->prepare($query);
@@ -92,7 +99,12 @@ class DB
 		{
 			foreach($values as $old_id => $value)
 			{
-				$stmt->execute($value);
+				$query_value = array();
+				foreach ($value as $k => $v)
+				{
+					$query_value[ ':' . $k ] = $v;
+				}
+				$stmt->execute($query_value);
 				$newIds[ $old_id ] = $this->_out->lastInsertId();
 			}
 		}

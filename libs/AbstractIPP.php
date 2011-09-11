@@ -74,6 +74,14 @@ abstract class AbstractIPP implements IPP
 	{
 		return isset($this->_vars[$name]);
 	}
+	
+	public function __call($name, $args)
+	{
+		if (strpos($name, 'set') == 0)
+		{
+			$this->__set(lcfirst(substr($name, 3)), $args[ 0 ]);
+		}
+	}
 
 	public function __set($name, $value)
 	{

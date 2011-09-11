@@ -1,7 +1,8 @@
 <?php
 
-require_once _X2PP_ROOT . '/libs/PP/Tickets.php';
-require_once _X2PP_ROOT . '/libs/PP/Ticket/Subscriptions.php';
+require_once _X2PP_ROOT . '/libs/PP/Project/Tickets.php';
+require_once _X2PP_ROOT . '/libs/PP/Project/Ticket/Subscriptions.php';
+require_once _X2PP_ROOT . '/libs/PP/Comments.php';
 
 class Modules_Flyspray_Tasks extends AbstractModules
 {
@@ -42,7 +43,7 @@ class Modules_Flyspray_Tasks extends AbstractModules
 	{
 		$this->_categories = $categories;
 	}
-
+	
 	public function convert()
 	{
 		if (empty($this->_users) || empty($this->_projects))
@@ -50,8 +51,50 @@ class Modules_Flyspray_Tasks extends AbstractModules
 			throw new RuntimeException('Users and Projects convert should be set!');
 		}
 
+		$this->_convertTasks();	
+		$this->_convertTaskComments();	
+	}
+	
+	private function _convertTaskComments()
+	{
 		// get data from database
-		$query = 'SELECT t.*, GROUP_CONCAT(a.user_id SEPARATOR \',\') AS assigned_user_id FROM ' . $this->getDB()->getSourcePrefix() . 'tasks
+		$query = 'SELECT * FROM ' . $this->getDB()->getSourcePrefix() . 'comments';
+		$stmt = $this->getDB()->getSource()->query($query);
+
+		$pp_comments = array();
+		// comment_text 	last_edited_time
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$pp_comment = new PP_Comments($this->getDB());
+			$pp_comment->setOldId($row['comment_id']);
+			$pp_comment->rel_object_id = $this->getNewId($row['task_id']);
+			$pp_comment->rel_object_manager = 'ProjectTickets';
+			$pp_comment->text = $row['comment_text'];
+			$pp_comment->is_private = $row[''];
+			$pp_comment->is_anonymous = $row[''];
+			$pp_comment->author_name = $row[''];
+			$pp_comment->author_email = $row[''];
+			$pp_comment->author_homepage = $row[''];
+			$pp_comment->created_on = time2SqlDateTime($row['date_added']);
+			$pp_comment->created_by_id = $this->_users->getNewId($row['user_id']);
+			$pp_comment->updated_on = $row[''];
+			$pp_comment->updated_by_id = $row[''];
+
+			$pp_comments[ $row['comment_id'] ] = $pp_comments;
+		}
+		$stmt->closeCursor();
+
+		// insert in db
+		$pp_comments[ array_rand($pp_comments) ]->writes2DB($pp_comments);
+		
+		// clean memory
+		unset($pp_comments);
+	}
+
+	private function _convertTasks()
+	{
+		// get data from database
+		$query = 'SELECT t.*, GROUP_CONCAT(a.user_id SEPARATOR \',\') AS assigned_user_id FROM ' . $this->getDB()->getSourcePrefix() . 'tasks t
 				LEFT JOIN ' . $this->getDB()->getSourcePrefix() . 'assigned a ON a.task_id = t.task_id GROUP BY task_id';
 		$stmt = $this->getDB()->getSource()->query($query);
 
@@ -70,17 +113,25 @@ class Modules_Flyspray_Tasks extends AbstractModules
 				$pp_ticket->setClosed_on(time2SqlDateTime($row['date_closed']));
 				$pp_ticket->setClosed_by_id($this->_users->getNewId($row['closed_by']));
 				$pp_ticket->setUpdated('closed');
-				$this->_closureComments[ $row['task_id'] ] = $row['closure_comment'];
 				$pp_ticket->setState('closed');
+				$this->_closureComments[ $row['task_id'] ] = $row['closure_comment'];
 			}
 			else
 			{
+				$pp_ticket->setClosed_on('0000-00-00 00:00:00');
+				$pp_ticket->setClosed_by_id(null);
 				$pp_ticket->setUpdated('open');
+				$pp_ticket->setState('opened');
+				$this->_closureComments[ $row['task_id'] ] = $row['closure_comment'];
 			}
 
 			if ($row['mark_private'] == '1')
 			{
 				$pp_ticket->setIs_private(1);
+			}
+			else
+			{
+				$pp_ticket->setIs_private(0);
 			}
 			
 			$pp_ticket->setSummary($row['item_summary']);
@@ -92,7 +143,11 @@ class Modules_Flyspray_Tasks extends AbstractModules
 				$pp_ticket->setAssigned_to_user_id($this->_users->getNewId($users_assigned[0]));
 				$assigned[ $row['task_id'] ] = $users_assigned;
 			}
-			
+			else
+			{
+				$pp_ticket->setAssigned_to_user_id(null);
+			}
+		
 			$pp_tickets[ $row['task_id'] ] = $pp_ticket;
 		}
 		$stmt->closeCursor();
@@ -103,6 +158,7 @@ class Modules_Flyspray_Tasks extends AbstractModules
 		// clean memory
 		unset($pp_tickets);
 		
+		// ticket subscription (no multiple assignement on pp, so use subscriptions ...)
 		$ticketSubscriptions = array();
 		foreach ($assigned as $oldTicketId => $assigned_users)
 		{
