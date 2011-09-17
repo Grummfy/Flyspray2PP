@@ -1,0 +1,8 @@
+* attachement
+** import
+* user
+** set password
+** mail with new password or something to informe them
+* permissions
+** set other permissions than admin and manager on projects
+* many other stuff
