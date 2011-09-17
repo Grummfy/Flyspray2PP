@@ -1,1 +1,12 @@
-* 
+h1. How import
+* download the current script inside your computer
+* get the database of flyspray locally or in a server that you can contact from your computer
+* get the database of projectpier (with tickets plugins activate!!!) locally or in a server that you can contact from your computer
+* set the configuration file config.php
+* uncoment the line in convert.php
+* run in cli or in web mode flyspray2pp.php
+* set new password on imported users
+* be happy
+
+h2. Notes
+The current script add data from flyspray to projectpier, existing data on projecpier will be keep!

@@ -3,7 +3,7 @@
 //
 //
 // comment this line to remove warning
-//die('Comment this line (add a // in front of the line, in file ' . __FILE__ . ' on line ' . __LINE__ . '), if you have backuped all your flyspray AND projectpier data!');
+die('Comment this line (add a // in front of the line, in file ' . __FILE__ . ' on line ' . __LINE__ . '), if you have backuped all your flyspray AND projectpier data!');
 //
 //
 //
